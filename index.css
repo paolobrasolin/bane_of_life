@@ -1,12 +1,12 @@
 @media (max-width: 800px) {
   body {
-    grid-template-areas: "board""controls";
+    grid-template-areas: "simulation" "controls";
   }
 }
 
 @media (min-width: 800px) {
   body {
-    grid-template-areas: "board controls";
+    grid-template-areas: "simulation controls";
     grid-template-columns: minmax(256px, 50vw) auto;
   }
 }
@@ -19,12 +19,7 @@ body {
   margin: 0;
   width: 100vw;
   height: 100vh;
-}
-
-canvas {
-  /* position: absolute; */
-  /* left: 50%;
-    transform: translate(-50%, 0); */
+  line-height: 1.5;
 }
 
 summary h2 {
@@ -36,9 +31,9 @@ summary h2 {
   min-height: 3rem;
 }
 
-#tools {
+#controls {
   background: lavender;
-  padding: 1em 2em 2em 2em;
+  padding: 1em 2em 4em 2em;
   overflow-y: scroll;
   grid-area: controls;
   z-index: 10000;
@@ -47,7 +42,23 @@ summary h2 {
   height: 100%;
 }
 
+.interactor {
+  border-radius: 30px;
+  padding: 1px 5px;
+  text-decoration: none;
+  background: cornflowerblue;
+  color: white;
+}
+
+.interactor:hover {
+  background: palevioletred;
+}
+
+.interactor:active {
+  background: mediumvioletred;
+}
+
 canvas {
-  grid-area: board;
+  grid-area: simulation;
   border: 3px double lightgray;
 }

@@ -37,17 +37,29 @@
   <div id="tools">
     <h1>Conway's Game Of Life</h1>
     <p>
-      This is a blim blam blom.
-      <a class="interactor" id="restart" href="#">Restart</a>
+      This is an implementation of the Game Of Life.
+      GOL is a cellular automaton devised by John Horton Conway,
+      an amazing mathematician and unfortunately yet another
+      victim of fricking COVID-19.
     </p>
-    <details open>
+    <p>
+      This toy allows you to customize every crucial aspect
+      of the simulation by writing your own JS code.
+      The links in each section will load interesting defaults.
+    </p>
+    <p>
+      When you're done editing the code you must
+      <a class="interactor" id="restart" href="#">restart the simulation</a>.
+    </p>
+    <details>
       <summary>
         <h2>Automaton rule</h2>
       </summary>
       <p>
-        Blah.
-        <a class="interactor" id="rule_conway" href="#">Conway</a>
-        <a class="interactor" id="rule_parity" href="#">Parity</a>
+        The heart of the automaton is the rule which calculates the evolution of the system.
+        <a class="interactor" id="rule_conway" href="#">Conway's traditional rule</a> is the most famous one.
+        An interesting alternative is a <a class="interactor" id="rule_parity" href="#">neighbours parity rule</a> which
+        is able to produce pretty fractal patterns (try using it with a seed of a single point).
       </p>
       <div id="rule_editor"></div>
     </details>
@@ -56,9 +68,10 @@
         <h2>Initial seed</h2>
       </summary>
       <p>
-        Blah.
-        <a class="interactor" id="seed_singleton" href="#">lone</a>
-        <a class="interactor" id="seed_random" href="#">random</a>
+        The initial conditions of the field completely determine its evolution.
+        An obvious choice is filling it with <a class="interactor" id="seed_random" href="#">random cells</a>.
+        Another interesting choice (when used with the parity rule) is starting with a <a class="interactor"
+          id="seed_singleton" href="#">single lone cell</a>.
       </p>
       <div id="seed_editor"></div>
     </details>
@@ -67,9 +80,9 @@
         <h2>World Boundaries</h2>
       </summary>
       <p>
-        Blah.
-        <a class="interactor" id="edge_wrap" href="#">wrap</a>
-        <a class="interactor" id="edge_wall" href="#">wall</a>
+        The simulated world is finite and we must decide how to handle calculations at the boundaries.
+        We can <a class="interactor" id="edge_wrap" href="#">wrap around the edges</a>
+        but also treat them like an <a class="interactor" id="edge_wall" href="#">impenetrable wall</a>.
       </p>
       <div id="edge_editor"></div>
     </details>

@@ -29,63 +29,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
 
-
-  <script src="sketch.js"></script>
-  <style>
-    @media (max-width: 800px) {
-      body {
-        grid-template-areas: "board""controls";
-      }
-    }
-
-    @media (min-width: 800px) {
-      body {
-        grid-template-areas: "board controls";
-        grid-template-columns: minmax(256px, 50vw) auto;
-      }
-    }
-
-    body {
-      font-family: 'Lato', sans-serif;
-      display: grid;
-      justify-items: center;
-      align-items: center;
-      margin: 0;
-      width: 100vw;
-      height: 100vh;
-    }
-
-    canvas {
-      /* position: absolute; */
-      /* left: 50%;
-        transform: translate(-50%, 0); */
-    }
-
-    summary h2 {
-      display: inline-block;
-    }
-
-    .CodeMirror {
-      height: auto;
-      min-height: 3rem;
-    }
-
-    #tools {
-      background: lavender;
-      padding: 1em 2em 2em 2em;
-      overflow-y: scroll;
-      grid-area: controls;
-      z-index: 10000;
-      box-sizing: border-box;
-      width: 100%;
-      height: 100%;
-    }
-
-    canvas {
-      grid-area: board;
-      border: 3px double lightgray;
-    }
-  </style>
+  <script src="index.js"></script>
+  <link rel="stylesheet" href="index.css">
 </head>
 
 <body>

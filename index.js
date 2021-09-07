@@ -3,8 +3,8 @@
 const PRESETS = {
   RULES: {
     CONWAY: `// This is the body of a JS function.
-// c(dx,dy) gets a neighbour state.
-// Tweak the rule then click on the board to restart!
+// The following is available:
+//   state(dx,dy): state of the neighbour at distance (dx,dy)
 
 neighbors = [
   [-1,-1],[ 0,-1],[ 1,-1],
@@ -13,17 +13,17 @@ neighbors = [
 ]
 
 score = neighbors.
-  map(([x,y]) => c(x,y)).
+  map(([x,y]) => state(x,y)).
   reduce((u,v) => u+v)
 
 if      (score <  2) return 0
-else if (score == 2) return c(0,0)
+else if (score == 2) return state(0,0)
 else if (score == 3) return 1
 else if (score >  3) return 0
 `,
     PARITY: `// This is the body of a JS function.
-// c(dx,dy) gets a neighbour state.
-// Tweak the rule then click on the board to restart!
+// The following is available:
+//   state(dx,dy): state of the neighbour at distance (dx,dy)
 
 neighbors = [
   [-1,-1],[ 0,-1],[ 1,-1],
@@ -32,33 +32,58 @@ neighbors = [
 ]
 
 score = neighbors.
-  map(([x,y]) => c(x,y)).
+  map(([x,y]) => state(x,y)).
   reduce((u,v) => u+v)
 
 return score % 2
 `,
   },
   SEEDS: {
-    RANDOM: `// TODO
+    RANDOM: `// This is the body of a JS function iterated on cells.
+// The following is available:
+//   x: current cell horizontal index
+//   y: current cell vertical index
+//   cols: world width
+//   rows: world height
 
 return Math.random() < 0.5 ? 0 : 1
 `,
-    SINGLETON: `// TODO
+    SINGLETON: `// This is the body of a JS function iterated on cells.
+// The following is available:
+//   x: current cell horizontal index
+//   y: current cell vertical index
+//   cols: world width
+//   rows: world height
+
 is_center = x == Math.floor(cols/2) 
 is_middle = y == Math.floor(rows/2)
 return is_center && is_middle ? 1 : 0
 `,
   },
   EDGES: {
-    WRAP: `// TODO
+    WRAP: `// This is the body of a JS function applied to cells.
+// The following is available:
+//   x: current cell horizontal index
+//   y: current cell vertical index
+//   cols: world width
+//   rows: world height
+//   state(x,y): state of the cell at position (x,y)
+
 xx = (cols + x) % cols
 yy = (rows + y) % rows
-return curr[xx][yy]
+return state[xx][yy]
 `,
-    WALL: `// TODO
+    WALL: `// This is the body of a JS function applied to cells.
+// The following is available:
+//   x: current cell horizontal index
+//   y: current cell vertical index
+//   cols: world width
+//   rows: world height
+//   state(x,y): state of the cell at position (x,y)
+
 if (x < 0 || x >= cols) return 0
 if (y < 0 || y >= rows) return 0
-return curr[x][y]
+return state[x][y]
 `,
   },
 };
@@ -189,7 +214,7 @@ class GOL {
   }
 
   readFunctions() {
-    this.ruleFunction = new Function("c", this.ruleEditor.getValue());
+    this.ruleFunction = new Function("state", this.ruleEditor.getValue());
     this.seedFunction = new Function(
       "x",
       "y",
@@ -202,7 +227,7 @@ class GOL {
       "y",
       "cols",
       "rows",
-      "curr",
+      "state",
       this.edgeEditor.getValue()
     );
   }

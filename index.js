@@ -1,9 +1,8 @@
-//=[ Rules ]====================================================================
+//=[ CONSTANTS ]================================================================
 
 const PRESETS = {
   RULES: {
-    CONWAY:
-`// This is the body of a JS function.
+    CONWAY: `// This is the body of a JS function.
 // c(dx,dy) gets a neighbour state.
 // Tweak the rule then click on the board to restart!
 
@@ -22,8 +21,7 @@ else if (score == 2) return c(0,0)
 else if (score == 3) return 1
 else if (score >  3) return 0
 `,
-    PARITY:
-`// This is the body of a JS function.
+    PARITY: `// This is the body of a JS function.
 // c(dx,dy) gets a neighbour state.
 // Tweak the rule then click on the board to restart!
 
@@ -38,146 +36,215 @@ score = neighbors.
   reduce((u,v) => u+v)
 
 return score % 2
-`
+`,
   },
   SEEDS: {
-    RANDOM:
-`// TODO
+    RANDOM: `// TODO
 
 return Math.random() < 0.5 ? 0 : 1
 `,
-    SINGLETON:
-`// TODO
-return x == floor(cols/2) && y == floor(rows/2) ? 1 : 0
-`
+    SINGLETON: `// TODO
+is_center = x == Math.floor(cols/2) 
+is_middle = y == Math.floor(rows/2)
+return is_center && is_middle ? 1 : 0
+`,
   },
   EDGES: {
-    WRAP:
-`// TODO
+    WRAP: `// TODO
 xx = (cols + x) % cols
 yy = (rows + y) % rows
 return curr[xx][yy]
 `,
-    WALL:
-`// TODO
+    WALL: `// TODO
 if (x < 0 || x >= cols) return 0
 if (y < 0 || y >= rows) return 0
 return curr[x][y]
-`
+`,
   },
-}
+};
 
+const SELECTORS = {
+  SIMULATION: "#simulation",
+  BUTTON: ".interactor",
+  BUTTONS: {
+    RESTART: "#restart",
+    CONWAY: "#rule_conway",
+    PARITY: "#rule_parity",
+    RANDOM: "#seed_random",
+    SINGLETON: "#seed_singleton",
+    WRAP: "#edge_wrap",
+    WALL: "#edge_wall",
+  },
+  EDITORS: {
+    RULE: "#rule_editor",
+    SEED: "#seed_editor",
+    EDGE: "#edge_editor",
+  },
+};
 
-
-
-//=[ Engine ]===================================================================
-
-let cols
-let rows
-let curr
-let next
-
-let editorDefaults = {
+const EDITORS_DEFAULT_CONFIG = {
   mode: "javascript",
   theme: "monokai",
   autoRefresh: true,
-}
+};
 
-let rule
-let ruleEditor
+//=[ Engine ]===================================================================
 
-let seed
-let seedEditor
+class GOL {
+  constructor({ cols = 512, rows = 512, fps = 16 } = {}) {
+    this.cols = cols;
+    this.rows = rows;
+    this.fps = fps;
+    this.currState = Array.from(Array(this.cols), () => new Array(this.rows));
+    this.nextState = Array.from(Array(this.cols), () => new Array(this.rows));
 
-let edge
-let edgeEditor
+    this.initEditors();
+    this.bindButtons();
 
-function setup() {
-  pixelDensity(1);
-  createCanvas(512, 512);
-  frameRate(16);
+    this.resetSimulation();
 
-  cols = width
-  rows = height
+    this.initP5();
+  }
 
-  curr = Array.from(Array(cols), () => new Array(rows))
-  next = Array.from(Array(cols), () => new Array(rows))
+  //-[ UX ]---------------------------------------------------------------------
 
+  initEditors() {
+    this.ruleEditor = CodeMirror(
+      document.querySelector(SELECTORS.EDITORS.RULE),
+      { ...EDITORS_DEFAULT_CONFIG, value: PRESETS.RULES.CONWAY }
+    );
 
-  ruleEditor = CodeMirror(
-    document.getElementById('rule_editor'),
-    { ...editorDefaults, value: PRESETS.RULES.CONWAY },
-  )
+    this.seedEditor = CodeMirror(
+      document.querySelector(SELECTORS.EDITORS.SEED),
+      { ...EDITORS_DEFAULT_CONFIG, value: PRESETS.SEEDS.RANDOM }
+    );
 
-  seedEditor = CodeMirror(
-    document.getElementById('seed_editor'),
-    { ...editorDefaults, value: PRESETS.SEEDS.RANDOM },
-  )
+    this.edgeEditor = CodeMirror(
+      document.querySelector(SELECTORS.EDITORS.EDGE),
+      { ...EDITORS_DEFAULT_CONFIG, value: PRESETS.EDGES.WRAP }
+    );
+  }
 
-  edgeEditor = CodeMirror(
-    document.getElementById('edge_editor'),
-    { ...editorDefaults, value: PRESETS.EDGES.WRAP },
-  )
+  bindButtons() {
+    document.addEventListener(
+      "click",
+      (event) => {
+        if (!event.target.matches(SELECTORS.BUTTON)) return;
+        if (event.target.matches(SELECTORS.BUTTONS.RESTART))
+          this.resetSimulation();
+        if (event.target.matches(SELECTORS.BUTTONS.CONWAY))
+          this.ruleEditor.setValue(PRESETS.RULES.CONWAY);
+        if (event.target.matches(SELECTORS.BUTTONS.PARITY))
+          this.ruleEditor.setValue(PRESETS.RULES.PARITY);
+        if (event.target.matches(SELECTORS.BUTTONS.RANDOM))
+          this.seedEditor.setValue(PRESETS.SEEDS.RANDOM);
+        if (event.target.matches(SELECTORS.BUTTONS.SINGLETON))
+          this.seedEditor.setValue(PRESETS.SEEDS.SINGLETON);
+        if (event.target.matches(SELECTORS.BUTTONS.WRAP))
+          this.edgeEditor.setValue(PRESETS.EDGES.WRAP);
+        if (event.target.matches(SELECTORS.BUTTONS.WALL))
+          this.edgeEditor.setValue(PRESETS.EDGES.WALL);
+        event.preventDefault();
+      },
+      false
+    );
+  }
 
-  init()
-}
+  //-[ P5 ]---------------------------------------------------------------------
 
-document.addEventListener('click', function (event) {
-  if (!event.target.matches('.interactor')) return;
-  if (event.target.matches('#restart')) init()
-  if (event.target.matches('#rule_conway')) ruleEditor.setValue(PRESETS.RULES.CONWAY)
-  if (event.target.matches('#rule_parity')) ruleEditor.setValue(PRESETS.RULES.PARITY)
-  if (event.target.matches('#seed_random')) seedEditor.setValue(PRESETS.SEEDS.RANDOM)
-  if (event.target.matches('#seed_singleton')) seedEditor.setValue(PRESETS.SEEDS.SINGLETON)
-  if (event.target.matches('#edge_wrap')) edgeEditor.setValue(PRESETS.EDGES.WRAP)
-  if (event.target.matches('#edge_wall')) edgeEditor.setValue(PRESETS.EDGES.WALL)
-  event.preventDefault();
-}, false);
+  initP5() {
+    let sketch = (p) => {
+      let black = p.color(0);
+      let white = p.color(255);
 
-function draw() {
-  black = color(0)
-  white = color(255)
+      p.setup = () => {
+        p.pixelDensity(1); // useful on retina screens
+        p.createCanvas(this.cols, this.rows);
+        p.frameRate(this.fps);
+      };
 
-  background(white)
+      p.draw = () => {
+        this.tick();
 
-  step()
-  flip()
+        for (let x = 0; x < this.cols; x++) {
+          for (let y = 0; y < this.rows; y++) {
+            p.set(x, y, this.currState[x][y] ? black : white);
+          }
+        }
 
-  for (x = 0; x < cols; x++) {
-    for (y = 0; y < rows; y++) {
-      set(x, y, curr[x][y] ? black : white)
+        p.updatePixels();
+      };
+    };
+
+    let container = document.querySelector(SELECTORS.SIMULATION);
+
+    this.p5Instance = new p5(sketch, container);
+  }
+
+  //-[ Simulation ]-------------------------------------------------------------
+
+  resetSimulation() {
+    this.readFunctions();
+    this.seed();
+  }
+
+  readFunctions() {
+    this.ruleFunction = new Function("c", this.ruleEditor.getValue());
+    this.seedFunction = new Function(
+      "x",
+      "y",
+      "cols",
+      "rows",
+      this.seedEditor.getValue()
+    );
+    this.edgeFunction = new Function(
+      "x",
+      "y",
+      "cols",
+      "rows",
+      "curr",
+      this.edgeEditor.getValue()
+    );
+  }
+
+  seed() {
+    for (let x = 0; x < this.cols; x++) {
+      for (let y = 0; y < this.rows; y++) {
+        this.currState[x][y] = this.seedFunction(x, y, this.cols, this.rows);
+      }
     }
   }
 
-  updatePixels()
-}
+  tick() {
+    this.step();
+    this.flip();
+  }
 
-function mousePressed() {
-  // init()
-}
-
-function init() {
-  rule = new Function("c", ruleEditor.getValue())
-  seed = new Function("x", "y", "cols", "rows", seedEditor.getValue())
-  edge = new Function("x", "y", "cols", "rows", "curr", edgeEditor.getValue())
-
-  for (x = 0; x < cols; x++) {
-    for (y = 0; y < rows; y++) {
-      curr[x][y] = seed(x, y, cols, rows)
+  step() {
+    for (let x = 0; x < this.cols; x++) {
+      for (let y = 0; y < this.rows; y++) {
+        this.nextState[x][y] = this.ruleFunction((dx, dy) =>
+          this.edgeFunction(
+            x + dx,
+            y + dy,
+            this.cols,
+            this.rows,
+            this.currState
+          )
+        );
+      }
     }
+  }
+
+  flip() {
+    let temp = this.currState;
+    this.currState = this.nextState;
+    this.nextState = temp;
   }
 }
 
-function step() {
-  for (x = 0; x < cols; x++) {
-    for (y = 0; y < rows; y++) {
-      next[x][y] = rule((dx,dy) => edge(x + dx, y + dy, cols, rows, curr))
-    }
-  }
-}
+//=[ Instantiation ]============================================================
 
-function flip() {
-  let temp = curr
-  curr = next
-  next = temp
-}
+document.addEventListener("DOMContentLoaded", function () {
+  window.gol = new GOL();
+});

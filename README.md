@@ -2,7 +2,7 @@
 
 This is an implementation of Conway's Game Of Life.
 
-To see it running just visit [the latest deployed version](https://paolobrasolin.github.io/interlogica__life/).
+To see it running just visit [the live demo](https://paolobrasolin.github.io/interlogica__life/).
 
 To run it locally:
   * clone the repo
